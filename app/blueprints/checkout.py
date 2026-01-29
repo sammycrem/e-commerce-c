@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, session, render_template
-from flask_login import login_required
+from flask_login import login_required, current_user
 from ..extensions import db
 from ..models import Promotion, Order, OrderItem, Variant
 from ..utils import calculate_totals_internal
@@ -16,13 +16,24 @@ def apply_promo():
     data = request.get_json() or {}
     code = data.get('code')
     cart_subtotal = data.get('cart_subtotal_cents')
+    user_id = current_user.id if current_user.is_authenticated else None
 
     if not code or cart_subtotal is None:
         return jsonify({"error": "Promo code and cart subtotal are required"}), 400
 
     promo = Promotion.query.filter_by(code=code, is_active=True).first()
-    if not promo or (promo.valid_to and promo.valid_to < datetime.now(timezone.utc)):
-        return jsonify({"error": "Invalid or expired promotion code"}), 404
+    if not promo:
+        return jsonify({"error": "Invalid promotion code"}), 404
+
+    promo_valid_to = promo.valid_to
+    if promo_valid_to and promo_valid_to.tzinfo is None:
+        promo_valid_to = promo_valid_to.replace(tzinfo=timezone.utc)
+
+    if promo_valid_to and promo_valid_to < datetime.now(timezone.utc):
+        return jsonify({"error": "Promotion code has expired"}), 404
+
+    if promo.user_id is not None and promo.user_id != user_id:
+        return jsonify({"error": "This promotion code is not valid for your account"}), 403
 
     discount_cents = 0
     if promo.discount_type == 'PERCENT':
@@ -30,12 +41,14 @@ def apply_promo():
     elif promo.discount_type == 'FIXED':
         discount_cents = int(promo.discount_value)
 
+    session['promo_code'] = promo.code
     return jsonify({"code": promo.code, "discount_cents": discount_cents, "new_total_cents": cart_subtotal - discount_cents}), 200
 
 @checkout_bp.route('/api/checkout', methods=['POST'])
 def checkout():
     body = request.get_json() or {}
     shipping_country_iso = body.get('shipping_country_iso') or body.get('country_iso')
+    user_id = current_user.id if current_user.is_authenticated else None
 
     # get cart from session
     cart_info = session.get('cart', {})
@@ -46,7 +59,7 @@ def checkout():
     items = [{"sku": sku, "quantity": qty} for sku, qty in cart_info.items()]
 
     # calculate totals using helper
-    calc_res = calculate_totals_internal(items, shipping_country_iso=shipping_country_iso, promo_code=body.get('promo_code'))
+    calc_res = calculate_totals_internal(items, shipping_country_iso=shipping_country_iso, promo_code=body.get('promo_code'), user_id=user_id)
 
     subtotal = calc_res['subtotal_cents']
     discount = calc_res['discount_cents']
@@ -135,8 +148,9 @@ def api_calculate_totals():
     items = data.get('items', [])
     country_iso = data.get('shipping_country_iso')
     promo_code = data.get('promo_code')
+    user_id = current_user.id if current_user.is_authenticated else None
 
-    result = calculate_totals_internal(items, shipping_country_iso=country_iso, promo_code=promo_code)
+    result = calculate_totals_internal(items, shipping_country_iso=country_iso, promo_code=promo_code, user_id=user_id)
     return jsonify(result), 200
 
 @checkout_bp.route('/checkout/login', methods=['GET'])
@@ -186,7 +200,9 @@ def shipping_address():
     countries = Country.query.all()
     cart_info = session.get('cart', {})
     items = [{"sku": sku, "quantity": qty} for sku, qty in cart_info.items()]
-    cart_summary = calculate_totals_internal(items)
+    promo_code = session.get('promo_code')
+    user_id = current_user.id if current_user.is_authenticated else None
+    cart_summary = calculate_totals_internal(items, promo_code=promo_code, user_id=user_id)
     return render_template('shipping_address.html', addresses=addresses, cart_summary=cart_summary, countries=countries)
 
 @checkout_bp.route('/checkout/edit-address/<int:address_id>', methods=['GET', 'POST'])
@@ -226,7 +242,9 @@ def shipping_methods():
     country_iso = shipping_address.country_iso_code if shipping_address else None
 
     selected_shipping = session.get('shipping_method', 'standard')
-    cart_summary = calculate_totals_internal(items, shipping_country_iso=country_iso, shipping_method=selected_shipping)
+    promo_code = session.get('promo_code')
+    user_id = current_user.id if current_user.is_authenticated else None
+    cart_summary = calculate_totals_internal(items, shipping_country_iso=country_iso, shipping_method=selected_shipping, promo_code=promo_code, user_id=user_id)
     return render_template('shipping_methods.html', cart_summary=cart_summary, selected_shipping=selected_shipping)
 
 @checkout_bp.route('/checkout/shipping-methods-save', methods=['POST'])
@@ -260,8 +278,10 @@ def payment_methods():
     # For now, we'll just recalculate based on standard or get from session if stored
     # Ideally, we should have the selected shipping method in session
     selected_shipping = session.get('shipping_method', 'standard')
+    promo_code = session.get('promo_code')
+    user_id = current_user.id if current_user.is_authenticated else None
 
-    cart_summary = calculate_totals_internal(items, shipping_country_iso=country_iso, shipping_method=selected_shipping)
+    cart_summary = calculate_totals_internal(items, shipping_country_iso=country_iso, shipping_method=selected_shipping, promo_code=promo_code, user_id=user_id)
 
     return render_template('payment_methods.html', cart_summary=cart_summary)
 
@@ -279,8 +299,10 @@ def summary():
 
     selected_shipping = session.get('shipping_method', 'standard')
     selected_payment = session.get('payment_method', 'card')
+    promo_code = session.get('promo_code') # Assuming promo_code might be in session
+    user_id = current_user.id if current_user.is_authenticated else None
 
-    cart_summary = calculate_totals_internal(items_list, shipping_country_iso=country_iso, shipping_method=selected_shipping)
+    cart_summary = calculate_totals_internal(items_list, shipping_country_iso=country_iso, shipping_method=selected_shipping, promo_code=promo_code, user_id=user_id)
 
     if request.method == 'POST':
         comment = request.form.get('comment')

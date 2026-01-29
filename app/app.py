@@ -306,6 +306,19 @@ def serialize_product(product):
         "variants": [serialize_variant(var) for var in product.variants]
     }
 
+def serialize_promotion(promo):
+    return {
+        "id": promo.id,
+        "code": promo.code,
+        "description": promo.description,
+        "discount_type": promo.discount_type,
+        "discount_value": promo.discount_value,
+        "is_active": promo.is_active,
+        "valid_to": promo.valid_to.isoformat() if promo.valid_to else None,
+        "user_id": promo.user_id,
+        "username": promo.user.username if promo.user else None
+    }
+
 
 
 
@@ -1181,6 +1194,88 @@ def admin_update_order_shipment(public_order_id):
         "shipped_at": order.shipped_at.isoformat() if order.shipped_at else None
     }), 200
 
+
+
+@app.route('/api/admin/users', methods=['GET'])
+@login_required
+def admin_list_users_json():
+    if current_user.username != ADMIN_USER:
+        abort(403)
+    users = User.query.order_by(User.username).all()
+    return jsonify([{"id": u.id, "username": u.username, "email": u.email} for u in users]), 200
+
+
+@app.route('/api/admin/promotions', methods=['GET'])
+@login_required
+def admin_list_promotions():
+    if current_user.username != ADMIN_USER:
+        abort(403)
+    promos = Promotion.query.order_by(Promotion.id.desc()).all()
+    return jsonify([serialize_promotion(p) for p in promos]), 200
+
+@app.route('/api/admin/promotions', methods=['POST'])
+@login_required
+def admin_create_promotion():
+    if current_user.username != ADMIN_USER:
+        abort(403)
+    data = request.get_json() or {}
+    try:
+        valid_to = None
+        if data.get('valid_to'):
+            valid_to = datetime.fromisoformat(data['valid_to'].replace('Z', '+00:00'))
+
+        promo = Promotion(
+            code=data['code'],
+            description=data.get('description'),
+            discount_type=data['discount_type'],
+            discount_value=int(data['discount_value']),
+            is_active=bool(data.get('is_active', True)),
+            valid_to=valid_to,
+            user_id=data.get('user_id')
+        )
+        db.session.add(promo)
+        db.session.commit()
+        return jsonify(serialize_promotion(promo)), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 400
+
+@app.route('/api/admin/promotions/<int:id>', methods=['PUT'])
+@login_required
+def admin_update_promotion(id):
+    if current_user.username != ADMIN_USER:
+        abort(403)
+    promo = Promotion.query.get_or_404(id)
+    data = request.get_json() or {}
+    try:
+        promo.code = data.get('code', promo.code)
+        promo.description = data.get('description', promo.description)
+        promo.discount_type = data.get('discount_type', promo.discount_type)
+        promo.discount_value = int(data.get('discount_value', promo.discount_value))
+        promo.is_active = bool(data.get('is_active', promo.is_active))
+        if 'valid_to' in data:
+            promo.valid_to = datetime.fromisoformat(data['valid_to'].replace('Z', '+00:00')) if data['valid_to'] else None
+        promo.user_id = data.get('user_id', promo.user_id)
+
+        db.session.commit()
+        return jsonify(serialize_promotion(promo)), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 400
+
+@app.route('/api/admin/promotions/<int:id>', methods=['DELETE'])
+@login_required
+def admin_delete_promotion(id):
+    if current_user.username != ADMIN_USER:
+        abort(403)
+    promo = Promotion.query.get_or_404(id)
+    try:
+        db.session.delete(promo)
+        db.session.commit()
+        return jsonify({"message": "Promotion deleted"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 400
 
 
 @app.route('/api/admin/orders/<string:public_order_id>', methods=['GET'])

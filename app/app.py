@@ -336,7 +336,7 @@ def setup_database(app):
                     create_user(xuser_name, generate_id(6) + '_1', xuser_name+"@nomail.local", '123')
 
         if not Promotion.query.first():
-            promo = Promotion(
+            promo1 = Promotion(
                 code='SAVE20',
                 description='Get 20% off your entire order!',
                 discount_type='PERCENT',
@@ -344,9 +344,18 @@ def setup_database(app):
                 is_active=True,
                 valid_to = datetime.now(timezone.utc) + timedelta(days=30)
             )
-            db.session.add(promo)
+            promo2 = Promotion(
+                code='DISCOUNT10',
+                description='Get 10% off your order!',
+                discount_type='PERCENT',
+                discount_value=10,
+                is_active=True,
+                valid_to = datetime.now(timezone.utc) + timedelta(days=30)
+            )
+            db.session.add(promo1)
+            db.session.add(promo2)
             db.session.commit()
-            logger.info("Seeded promotion SAVE20")
+            logger.info("Seeded promotions SAVE20 and DISCOUNT10")
 
         # seed sample countries and shipping zone
         if not Country.query.first():

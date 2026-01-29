@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await res.json();
       cartData = data;
       renderCart(data);
-      await recalcTotals(promoInput.value.trim());
+      await recalcTotals('');
     } catch (err) {
       console.error('refreshCart error:', err);
       cartContainer.innerHTML = '<tr><td colspan="4">Unable to load cart. Try reloading the page.</td></tr>';
@@ -154,7 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  async function recalcTotals(promoCode = '') {
+  async function recalcTotals() {
     const items = (cartData.items || []).map(it => ({ sku: it.sku, quantity: it.quantity }));
 
     try {
@@ -162,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
         method: 'POST',
         credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items, shipping_country_iso: null, promo_code: promoCode || null })
+        body: JSON.stringify({ items, shipping_country_iso: null, promo_code: null })
       });
       const data = await res.json();
 
@@ -176,35 +176,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
       lastCalc = data;
       if (subtotalEl) subtotalEl.textContent = formatPrice(data.subtotal_cents || 0);
-      if (discountEl) discountEl.textContent = formatPrice(data.discount_cents || 0);
+      if (discountEl) discountEl.textContent = formatPrice(0);
 
       // Cart page displays only item VAT and total without shipping
       const itemVat = data.item_vat_cents || 0;
       if (vatEl) vatEl.textContent = formatPrice(itemVat);
 
-      const subtotalAfterDiscount = (data.subtotal_cents || 0) - (data.discount_cents || 0);
+      const subtotalAfterDiscount = (data.subtotal_cents || 0);
       const totalDueWithoutShipping = subtotalAfterDiscount + itemVat;
       if (totalEl) totalEl.textContent = formatPrice(totalDueWithoutShipping);
 
     } catch (err) {
       console.error('recalcTotals error:', err);
-      promoFeedback.textContent = 'Unable to calculate totals. Try again.';
-      promoFeedback.className = 'feedback error';
     }
   }
-
-  applyPromoBtn.addEventListener('click', async () => {
-    const code = promoInput.value.trim();
-    promoFeedback.textContent = '';
-    await recalcTotals(code);
-    if (lastCalc && lastCalc.discount_cents && lastCalc.discount_cents > 0) {
-      promoFeedback.textContent = `Promo '${code}' applied`;
-      promoFeedback.className = 'feedback success';
-    } else if (code) {
-      promoFeedback.textContent = `Promo '${code}' not applied`;
-      promoFeedback.className = 'feedback error';
-    }
-  });
 
   checkoutBtn.addEventListener('click', (e) => {
     e.preventDefault();

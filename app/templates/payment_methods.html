@@ -88,11 +88,12 @@
                     </div>
 
                     <div class="mt-4">
-                        <h5 class="mb-3 fw-bold">Use my loyalty credit</h5>
+                        <h5 class="mb-3 fw-bold">Promo Code</h5>
                         <div class="input-group mb-3" style="max-width: 400px;">
-                            <input type="text" class="form-control" placeholder="Enter your coupon code if you have">
-                            <button class="btn btn-primary" type="button"><i class="bi bi-arrow-right"></i></button>
+                            <input type="text" id="promo-code" class="form-control" placeholder="Enter your coupon code if you have" value="{{ session.get('promo_code', '') }}">
+                            <button id="apply-promo-btn" class="btn btn-primary" type="button">Apply</button>
                         </div>
+                        <p id="promo-feedback" class="small mt-1 mb-0"></p>
                     </div>
                 </form>
             </div>
@@ -152,6 +153,37 @@
         card.addEventListener('click', () => {
             card.querySelector('input').checked = true;
         });
+    });
+
+    document.getElementById('apply-promo-btn').addEventListener('click', async () => {
+        const promoCode = document.getElementById('promo-code').value.trim();
+        const promoFeedback = document.getElementById('promo-feedback');
+
+        try {
+            const response = await fetch('/api/set-promo-code', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ promo_code: promoCode })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                promoFeedback.textContent = data.message;
+                promoFeedback.className = 'small mt-1 mb-0 text-success';
+                // Refresh the summary
+                location.reload();
+            } else {
+                promoFeedback.textContent = data.error || 'Invalid promo code';
+                promoFeedback.className = 'small mt-1 mb-0 text-danger';
+            }
+        } catch (error) {
+            console.error('Error applying promo code:', error);
+            promoFeedback.textContent = 'An error occurred';
+            promoFeedback.className = 'small mt-1 mb-0 text-danger';
+        }
     });
 </script>
 {% endblock %}

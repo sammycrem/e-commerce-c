@@ -11,6 +11,32 @@ logger = logging.getLogger(__name__)
 
 checkout_bp = Blueprint('checkout_bp', __name__)
 
+@checkout_bp.route('/api/set-promo-code', methods=['POST'])
+def set_promo_code():
+    data = request.get_json() or {}
+    code = data.get('promo_code', '').strip()
+
+    if not code:
+        session.pop('promo_code', None)
+        return jsonify({"message": "Promo code removed"}), 200
+
+    promo = Promotion.query.filter_by(code=code, is_active=True).first()
+    if not promo:
+        return jsonify({"error": "Invalid promotion code"}), 404
+
+    if promo.valid_to:
+        # Handle potential timezone mismatch between DB (naive) and now (aware)
+        now = datetime.now(timezone.utc)
+        valid_to = promo.valid_to
+        if valid_to.tzinfo is None:
+            valid_to = valid_to.replace(tzinfo=timezone.utc)
+
+        if valid_to < now:
+            return jsonify({"error": "Promotion code has expired"}), 404
+
+    session['promo_code'] = code
+    return jsonify({"message": f"Promo code '{code}' applied", "code": code}), 200
+
 @checkout_bp.route('/api/apply-promo', methods=['POST'])
 def apply_promo():
     data = request.get_json() or {}
@@ -21,8 +47,17 @@ def apply_promo():
         return jsonify({"error": "Promo code and cart subtotal are required"}), 400
 
     promo = Promotion.query.filter_by(code=code, is_active=True).first()
-    if not promo or (promo.valid_to and promo.valid_to < datetime.now(timezone.utc)):
-        return jsonify({"error": "Invalid or expired promotion code"}), 404
+    if not promo:
+        return jsonify({"error": "Invalid promotion code"}), 404
+
+    if promo.valid_to:
+        now = datetime.now(timezone.utc)
+        valid_to = promo.valid_to
+        if valid_to.tzinfo is None:
+            valid_to = valid_to.replace(tzinfo=timezone.utc)
+
+        if valid_to < now:
+            return jsonify({"error": "Promotion code has expired"}), 404
 
     discount_cents = 0
     if promo.discount_type == 'PERCENT':
@@ -46,7 +81,7 @@ def checkout():
     items = [{"sku": sku, "quantity": qty} for sku, qty in cart_info.items()]
 
     # calculate totals using helper
-    calc_res = calculate_totals_internal(items, shipping_country_iso=shipping_country_iso, promo_code=body.get('promo_code'))
+    calc_res = calculate_totals_internal(items, shipping_country_iso=shipping_country_iso, promo_code=session.get('promo_code'))
 
     subtotal = calc_res['subtotal_cents']
     discount = calc_res['discount_cents']
@@ -134,9 +169,10 @@ def api_calculate_totals():
     data = request.get_json() or {}
     items = data.get('items', [])
     country_iso = data.get('shipping_country_iso')
-    promo_code = data.get('promo_code')
+    promo_code = data.get('promo_code') or session.get('promo_code')
+    shipping_method = data.get('shipping_method', 'standard')
 
-    result = calculate_totals_internal(items, shipping_country_iso=country_iso, promo_code=promo_code)
+    result = calculate_totals_internal(items, shipping_country_iso=country_iso, promo_code=promo_code, shipping_method=shipping_method)
     return jsonify(result), 200
 
 @checkout_bp.route('/checkout/login', methods=['GET'])
@@ -186,7 +222,7 @@ def shipping_address():
     countries = Country.query.all()
     cart_info = session.get('cart', {})
     items = [{"sku": sku, "quantity": qty} for sku, qty in cart_info.items()]
-    cart_summary = calculate_totals_internal(items)
+    cart_summary = calculate_totals_internal(items, promo_code=session.get('promo_code'))
     return render_template('shipping_address.html', addresses=addresses, cart_summary=cart_summary, countries=countries)
 
 @checkout_bp.route('/checkout/edit-address/<int:address_id>', methods=['GET', 'POST'])
@@ -226,7 +262,7 @@ def shipping_methods():
     country_iso = shipping_address.country_iso_code if shipping_address else None
 
     selected_shipping = session.get('shipping_method', 'standard')
-    cart_summary = calculate_totals_internal(items, shipping_country_iso=country_iso, shipping_method=selected_shipping)
+    cart_summary = calculate_totals_internal(items, shipping_country_iso=country_iso, shipping_method=selected_shipping, promo_code=session.get('promo_code'))
     return render_template('shipping_methods.html', cart_summary=cart_summary, selected_shipping=selected_shipping)
 
 @checkout_bp.route('/checkout/shipping-methods-save', methods=['POST'])
@@ -261,7 +297,7 @@ def payment_methods():
     # Ideally, we should have the selected shipping method in session
     selected_shipping = session.get('shipping_method', 'standard')
 
-    cart_summary = calculate_totals_internal(items, shipping_country_iso=country_iso, shipping_method=selected_shipping)
+    cart_summary = calculate_totals_internal(items, shipping_country_iso=country_iso, shipping_method=selected_shipping, promo_code=session.get('promo_code'))
 
     return render_template('payment_methods.html', cart_summary=cart_summary)
 
@@ -280,7 +316,7 @@ def summary():
     selected_shipping = session.get('shipping_method', 'standard')
     selected_payment = session.get('payment_method', 'card')
 
-    cart_summary = calculate_totals_internal(items_list, shipping_country_iso=country_iso, shipping_method=selected_shipping)
+    cart_summary = calculate_totals_internal(items_list, shipping_country_iso=country_iso, shipping_method=selected_shipping, promo_code=session.get('promo_code'))
 
     if request.method == 'POST':
         comment = request.form.get('comment')

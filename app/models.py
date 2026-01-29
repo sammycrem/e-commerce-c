@@ -102,6 +102,8 @@ class Promotion(db.Model):
     discount_value = db.Column(db.BigInteger, nullable=False)
     is_active = db.Column(db.Boolean, default=True)
     valid_to = db.Column(db.DateTime)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    user = db.relationship('User', backref='promotions')
 
 class Country(db.Model):
     __tablename__ = 'countries'

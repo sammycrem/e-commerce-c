@@ -732,12 +732,13 @@ def get_random_element_from_json(json_string):
         return None
 # ---------end------------
 
-def calculate_totals_internal(items, shipping_country_iso=None, promo_code=None, shipping_method='standard'):
+def calculate_totals_internal(items, shipping_country_iso=None, promo_code=None, shipping_method='standard', user_id=None):
     """
     items: list of {sku: ..., quantity: N}
     shipping_country_iso: str like 'DE' or 'US'
     promo_code: optional promo code string
     shipping_method: 'standard', 'express', or 'economic'
+    user_id: optional user ID for user-specific promo codes
 
     Returns a dict:
     {
@@ -795,13 +796,15 @@ def calculate_totals_internal(items, shipping_country_iso=None, promo_code=None,
     if promo_code:
         promo = Promotion.query.filter_by(code=promo_code, is_active=True).first()
         from datetime import datetime, timezone
-        if promo and promo.valid_to:
-            now = datetime.now(timezone.utc)
-            valid_to = promo.valid_to
-            if valid_to.tzinfo is None:
-                valid_to = valid_to.replace(tzinfo=timezone.utc)
-            if valid_to < now:
+        if promo:
+            promo_valid_to = promo.valid_to
+            if promo_valid_to and promo_valid_to.tzinfo is None:
+                promo_valid_to = promo_valid_to.replace(tzinfo=timezone.utc)
+
+            if promo_valid_to and promo_valid_to < datetime.now(timezone.utc):
                 promo = None  # expired
+            elif promo.user_id is not None and promo.user_id != user_id:
+                promo = None  # not valid for this user
 
     if promo:
         if promo.discount_type == 'PERCENT':

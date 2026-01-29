@@ -179,11 +179,12 @@ document.addEventListener('DOMContentLoaded', () => {
       if (discountEl) discountEl.textContent = formatPrice(data.discount_cents || 0);
 
       // Cart page displays only item VAT and total without shipping
+      // VAT is now removed from display, and Total Due is now Total Due Excl. Tax
       const itemVat = data.item_vat_cents || 0;
       if (vatEl) vatEl.textContent = formatPrice(itemVat);
 
       const subtotalAfterDiscount = (data.subtotal_cents || 0) - (data.discount_cents || 0);
-      const totalDueWithoutShipping = subtotalAfterDiscount + itemVat;
+      const totalDueWithoutShipping = subtotalAfterDiscount;
       if (totalEl) totalEl.textContent = formatPrice(totalDueWithoutShipping);
 
     } catch (err) {

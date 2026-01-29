@@ -1,0 +1,200 @@
+{% extends "layout.html" %}
+
+{% block title %}Checkout - Shipping Address{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="progress-bar-container mb-4">
+                <div class="progress-step completed">
+                    <div class="progress-step-number">1</div>
+                    <div class="progress-step-label">My Cart</div>
+                </div>
+                <div class="progress-step active">
+                    <div class="progress-step-number">2</div>
+                    <div class="progress-step-label">Shipping Address</div>
+                </div>
+                <div class="progress-step">
+                    <div class="progress-step-number">3</div>
+                    <div class="progress-step-label">Shipping Methods</div>
+                </div>
+                <div class="progress-step">
+                    <div class="progress-step-number">4</div>
+                    <div class="progress-step-label">Payment Methods</div>
+                </div>
+                <div class="progress-step">
+                    <div class="progress-step-number">5</div>
+                    <div class="progress-step-label">Summary</div>
+                </div>
+            </div>
+            <h1 class="mb-4">Shipping Information</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="h4 mb-0">Shipping Addresses</h2>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addAddressModal">New Address</button>
+            </div>
+
+            <div class="row g-3 mb-5">
+                {% for address in addresses if address.address_type == 'shipping' %}
+                <div class="col-md-6">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold">{{ address.first_name }} {{ address.last_name }}</h5>
+                            <p class="card-text text-muted small mb-1">{{ address.address_line_1 }}</p>
+                            {% if address.address_line_2 %}<p class="card-text text-muted small mb-1">{{ address.address_line_2 }}</p>{% endif %}
+                            <p class="card-text text-muted small mb-1">{{ address.city }}, {{ address.state }} {{ address.postal_code }}</p>
+                            <p class="card-text text-muted small mb-1">{{ address.country_iso_code }}</p>
+                            <p class="card-text text-muted small mb-3">{{ address.phone_number }}</p>
+
+                            <div class="d-flex gap-2">
+                                <a href="{{ url_for('checkout_bp.edit_address', address_id=address.id) }}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                                <form method="POST" action="{{ url_for('checkout_bp.shipping_address') }}" class="d-inline">
+                                    <input type="hidden" name="address_id" value="{{ address.id }}">
+                                    <button type="submit" name="delete_address" class="btn btn-sm btn-outline-danger">Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="col-12">
+                    <div class="alert alert-light text-center py-4 border">
+                        No shipping addresses found.
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <h2 class="h4 mb-3">Billing Addresses</h2>
+            <div class="row g-3">
+                {% for address in addresses if address.address_type == 'billing' %}
+                <div class="col-md-6">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold">{{ address.first_name }} {{ address.last_name }}</h5>
+                            <p class="card-text text-muted small mb-1">{{ address.address_line_1 }}</p>
+                            {% if address.address_line_2 %}<p class="card-text text-muted small mb-1">{{ address.address_line_2 }}</p>{% endif %}
+                            <p class="card-text text-muted small mb-1">{{ address.city }}, {{ address.state }} {{ address.postal_code }}</p>
+                            <p class="card-text text-muted small mb-1">{{ address.country }}</p>
+                            <p class="card-text text-muted small mb-0">{{ address.phone_number }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 summary-card sticky-top" style="top: 2rem; z-index: 10;">
+                <div class="card-body">
+                    <h2 class="h4 mb-4">Summary</h2>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Subtotal</span>
+                        <span id="summary-subtotal" class="fw-bold">€{{ "%.2f"|format(cart_summary.subtotal_cents / 100) }}</span>
+                    </div>
+                    <div id="summary-discount-row" class="d-flex justify-content-between mb-2 text-danger" {% if cart_summary.discount_cents == 0 %}style="display: none !important;"{% endif %}>
+                        <span class="">Discount</span>
+                        <span id="summary-discount" class="fw-bold">-€{{ "%.2f"|format(cart_summary.discount_cents / 100) }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2 border-top pt-2 mt-2">
+                        <span class="text-muted">VAT</span>
+                        <span id="summary-vat" class="fw-bold">€{{ "%.2f"|format(cart_summary.vat_cents / 100) }}</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-4">
+                        <span class="h5 mb-0 fw-bold">Total Due</span>
+                        <span id="summary-total" class="h5 mb-0 fw-bold text-primary">€{{ "%.2f"|format(cart_summary.total_cents / 100) }}</span>
+                    </div>
+                    <a href="{{ url_for('checkout_bp.shipping_methods') }}" class="btn btn-primary btn-lg w-100 fw-bold shadow">PROCEED TO CHECKOUT</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Address Modal -->
+<div class="modal fade" id="addAddressModal" tabindex="-1" aria-labelledby="addAddressModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title" id="addAddressModalLabel">Add New Address</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form method="POST" action="{{ url_for('checkout_bp.shipping_address') }}">
+                    <div class="mb-3">
+                        <label for="address_type" class="form-label small fw-bold">Address Type</label>
+                        <select class="form-select" id="address_type" name="address_type" required>
+                            <option value="shipping">Shipping</option>
+                            <option value="billing">Billing</option>
+                        </select>
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="first_name" class="form-label small fw-bold">First Name</label>
+                            <input type="text" class="form-control" id="first_name" name="first_name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="last_name" class="form-label small fw-bold">Last Name</label>
+                            <input type="text" class="form-control" id="last_name" name="last_name" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="address_line_1" class="form-label small fw-bold">Address Line 1</label>
+                        <input type="text" class="form-control" id="address_line_1" name="address_line_1" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="address_line_2" class="form-label small fw-bold">Address Line 2 (Optional)</label>
+                        <input type="text" class="form-control" id="address_line_2" name="address_line_2">
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="city" class="form-label small fw-bold">City</label>
+                            <input type="text" class="form-control" id="city" name="city" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="state" class="form-label small fw-bold">State/Province</label>
+                            <input type="text" class="form-control" id="state" name="state">
+                        </div>
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="postal_code" class="form-label small fw-bold">Postal Code</label>
+                            <input type="text" class="form-control" id="postal_code" name="postal_code" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="country" class="form-label small fw-bold">Country</label>
+                            <select class="form-select" id="country" name="country" required>
+                                {% for country in countries %}
+                                    <option value="{{ country.iso_code }}">{{ country.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="phone_number" class="form-label small fw-bold">Phone Number (Optional)</label>
+                        <input type="text" class="form-control" id="phone_number" name="phone_number">
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg fw-bold">Save Address</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+{% endblock %}

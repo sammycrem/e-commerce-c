@@ -1,0 +1,56 @@
+{% extends "layout.html" %}
+
+{% block title %}Shop - Our Products{% endblock %}
+
+{% block content %}
+<div class="bg-light py-5 mb-5 border-bottom">
+    <div class="container text-center">
+        <h1 class="display-4 fw-bold">Shop</h1>
+        <p class="lead text-muted">Explore our exclusive collection of high-quality products.</p>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <div class="row g-4">
+        {% for product in products %}
+        <div class="col-sm-6 col-md-4 col-lg-3">
+            <div class="card h-100 shadow-sm border-0 product-card overflow-hidden">
+                <div class="product-image-container position-relative">
+                    {% if product.images %}
+                        <img src="{{ product.images[0].url }}" class="card-img-top" alt="{{ product.name }}" style="height: 250px; object-fit: cover;">
+                    {% else %}
+                        <img src="https://via.placeholder.com/400x400?text={{ product.name }}" class="card-img-top" alt="{{ product.name }}" style="height: 250px; object-fit: cover;">
+                    {% endif %}
+                    <div class="product-overlay d-flex align-items-center justify-content-center opacity-0 transition">
+                        <a href="{{ url_for('product_page', sku=product.product_sku) }}" class="btn btn-primary shadow">View Details</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title fw-bold mb-2">
+                        <a href="{{ url_for('product_page', sku=product.product_sku) }}" class="text-decoration-none text-dark">{{ product.name }}</a>
+                    </h5>
+                    <p class="card-text text-muted small mb-3 text-truncate-2">{{ product.description }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="h5 fw-bold text-primary mb-0">€{{ "%.2f"|format(product.base_price_cents / 100) }}</span>
+                        <div class="text-warning">
+                            <i class="bi bi-star-fill small"></i>
+                            <i class="bi bi-star-fill small"></i>
+                            <i class="bi bi-star-fill small"></i>
+                            <i class="bi bi-star-fill small"></i>
+                            <i class="bi bi-star-half small"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12 text-center py-5">
+            <i class="bi bi-search fs-1 text-muted mb-3"></i>
+            <h3>No products found</h3>
+            <p class="text-muted">Stay tuned! We're adding new products every day.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+
+{% block title %}Order Confirmed{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-center">
+            <div class="card shadow-sm border-0 py-5">
+                <div class="card-body">
+                    <div class="mb-4">
+                        <i class="fas fa-check-circle text-success fa-5x"></i>
+                    </div>
+                    <h1 class="display-4 mb-3">Thank You!</h1>
+                    <p class="lead mb-4">Your order has been placed successfully.</p>
+                    <div class="alert alert-info py-3 mb-4">
+                        <p class="mb-0">Order Confirmation ID: <strong>{{ order_id }}</strong></p>
+                    </div>
+                    <p class="text-muted mb-5">We've sent a confirmation email to your registered address.</p>
+                    <a href="{{ url_for('index') }}" class="btn btn-primary btn-lg px-5 fw-bold">Continue Shopping</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}

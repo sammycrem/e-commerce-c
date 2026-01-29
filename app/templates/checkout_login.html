@@ -1,0 +1,96 @@
+{% extends "layout.html" %}
+
+{% block title %}Checkout - Login{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center mb-4">
+        <div class="col-12 text-center">
+            <h1 class="display-5 fw-bold">Checkout</h1>
+            <p class="text-muted">Please log in or create an account to proceed with your order.</p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body p-4 p-md-5">
+                    <h3 class="card-title fw-bold mb-4">Returning Customers</h3>
+                    <p class="text-muted mb-4">If you have an account with us, please log in below.</p>
+
+                    <form method="POST" action="{{ url_for('login', next=url_for('checkout_bp.shipping_address')) }}">
+                        <div class="mb-3">
+                            <label for="email" class="form-label small fw-bold">Email Address</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="bi bi-envelope text-muted"></i></span>
+                                <input type="email" class="form-control bg-light border-start-0" id="email" name="email" placeholder="email@example.com" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <label for="password" class="form-label small fw-bold">Password</label>
+                                <a href="#" class="small text-decoration-none">Forgot Password?</a>
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="bi bi-lock text-muted"></i></span>
+                                <input type="password" class="form-control bg-light border-start-0" id="password" name="password" placeholder="••••••••" required>
+                            </div>
+                        </div>
+                        <div class="mb-4 form-check">
+                            <input type="checkbox" class="form-check-input" id="rememberMe">
+                            <label class="form-check-label small" for="rememberMe">Remember me</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold shadow-sm py-3">LOGIN TO PROCEED</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body p-4 p-md-5 d-flex flex-column">
+                    <h3 class="card-title fw-bold mb-4">New Customers</h3>
+                    <p class="text-muted mb-4">Creating an account is fast, easy and gives you many benefits:</p>
+
+                    <ul class="list-unstyled mb-auto">
+                        <li class="mb-3 d-flex align-items-center">
+                            <div class="bg-primary-subtle text-primary rounded-circle p-2 me-3">
+                                <i class="bi bi-lightning-fill"></i>
+                            </div>
+                            <span>Faster checkout process</span>
+                        </li>
+                        <li class="mb-3 d-flex align-items-center">
+                            <div class="bg-primary-subtle text-primary rounded-circle p-2 me-3">
+                                <i class="bi bi-clock-history"></i>
+                            </div>
+                            <span>Track your order history</span>
+                        </li>
+                        <li class="mb-3 d-flex align-items-center">
+                            <div class="bg-primary-subtle text-primary rounded-circle p-2 me-3">
+                                <i class="bi bi-heart-fill"></i>
+                            </div>
+                            <span>Save items to your wishlist</span>
+                        </li>
+                        <li class="mb-4 d-flex align-items-center">
+                            <div class="bg-primary-subtle text-primary rounded-circle p-2 me-3">
+                                <i class="bi bi-tag-fill"></i>
+                            </div>
+                            <span>Access to exclusive member discounts</span>
+                        </li>
+                    </ul>
+
+                    <div class="mt-4">
+                        <a href="{{ url_for('signup') }}" class="btn btn-outline-primary btn-lg w-100 fw-bold py-3">CREATE AN ACCOUNT</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-primary-subtle {
+        background-color: rgba(13, 110, 253, 0.1);
+    }
+</style>
+{% endblock %}

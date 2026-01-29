@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Delete User</title>
+    <link href="/static/assets/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&amp;family=Nunito:wght@600;700;800&amp;family=Pacifico&amp;display=swap;" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cookie&display=swap" rel="stylesheet">
+    <link href="/static/assets/css/product.css" rel="stylesheet">
+</head>
+
+<body>
+    
+    <div class="align-items-center" id="updateDiv"
+    style="overflow-y: scroll; overflow-x: hidden; display: block;position: relative;z-index: 10000000;top: 25%;width: 94%;left: 3%;background: black;height: auto; border: solid #FEA116;">
+    <div class=" fadeInUp" style="width: 100%;padding: 2%;margin: auto;">
+      <br>
+      <h4 class="section-title ff-secondary  text-secondary" id="h4_1_form" style="margin-left: 2%;"><i
+        class="fa-solid fa-right-to-bracket"></i></h4>
+      <h4 id="h4_2_form" class="section-title ff-secondary  text-secondary"> Delete User: {{ user.username }}</h4>
+      <h4 class="text-white mb-4" id="h2_1_form" style="margin-left: 2%;">{{ message_text }}</h4>
+      <form method="POST" action="/user/{{ user.id }}/delete">
+
+        <div class="form-floating margin-2per">
+          <input class="form-control" type="text" name="id" required value="{{ user.id }}" readonly>
+          <label>ID</label>
+        </div>
+
+        <div class="form-floating margin-2per">
+          <input class="form-control" type="text" name="name" value="{{ user.username }}" required>
+          <label>Name</label>
+        </div>
+
+        <div class="form-floating margin-2per">
+          <input class="form-control" type="email" name="email" value="{{ user.email }}" required>
+          <label>Email</label>
+        </div>
+
+        <div class="form-floating margin-2per">
+          <input class="form-control" type="text" name="User_id" value="{{ user.user_id }}" required readonly>
+          <label>User_id</label>
+        </div>
+
+        <div class="form-floating margin-2per">
+          <input class="form-control" type="text" name="validation" value="{{ user.validation }}" required>
+          <label>Validation</label>
+        </div>
+
+        <div class="form-floating margin-2per">
+          <input class="form-control" type="text" name="created_at" value="{{ user.created_at }}" required>
+          <label>Created_at</label>
+        </div>
+
+
+      <div style="width: 90%; margin-left: 10%;">
+        <div style="width: 90%; margin-left: 25%;">
+            <div class="col-button" style="display: contents; margin: auto;">
+              <button class="btn btn-primary w-25 py-3 form-control-btn" type="submit"><i
+                  class="fa-solid fa-right-to-bracket"></i> Delete</button>
+            </div>
+
+        <div class="col-button" style="display: contents; margin: auto;">
+         <a href="{{ url_for('user_list') }}">
+            <div class="btn btn-primary w-25 py-3 form-control-btn"><i class="fa-solid fa-list"></i> Annuler</div></a>
+        </div></div>
+      </div>
+
+
+      </form>
+    </div>
+  </div> 
+ 
+</body>
+
+</html>

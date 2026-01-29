@@ -1,0 +1,139 @@
+{% extends "layout.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">Admin Dashboard</h1>
+
+    <ul class="nav nav-pills mb-4" id="adminTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active tab-button" data-tab="products" id="products-tab" type="button">Products</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link tab-button" data-tab="orders" id="orders-tab" type="button">Orders</button>
+        </li>
+    </ul>
+
+    <!-- PRODUCTS TAB -->
+    <div id="tab-products" class="tab-content">
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-white">
+                        <h2 class="h5 mb-0">Products List</h2>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="p-3 border-bottom">
+                            <button id="btn-new-product" class="btn btn-primary w-100">
+                                <i class="fas fa-plus me-2"></i>Create New Product
+                            </button>
+                        </div>
+                        <div id="product-list" class="list-group list-group-flush overflow-auto" style="max-height: 600px;">
+                            <!-- Products will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-8">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <h2 class="h5 mb-0" id="editor-title">Create / Edit Product</h2>
+                        <div id="admin-feedback" class="alert alert-dismissible fade show mb-0 d-none" role="alert"></div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Product SKU</label>
+                                <input id="product_sku" type="text" placeholder="e.g., TSHIRT-001" class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Product Name</label>
+                                <input id="name" type="text" placeholder="Product Name" class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Category</label>
+                                <input id="category" type="text" placeholder="Category" class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Base Price (€)</label>
+                                <input id="base_price" type="text" placeholder="e.g. 24.99" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold">Description</label>
+                            <textarea id="description" class="form-control" rows="3" placeholder="Description"></textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h3 class="h6 mb-0 fw-bold">Product Images</h3>
+                                <button id="add-product-image" class="btn btn-sm btn-outline-secondary">Add Image</button>
+                            </div>
+                            <div id="product-images" class="row g-2"></div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h3 class="h6 mb-0 fw-bold">Variants</h3>
+                                <button id="add-variant" class="btn btn-sm btn-outline-secondary">Add Variant</button>
+                            </div>
+                            <div id="variants" class="accordion accordion-flush border rounded"></div>
+                        </div>
+
+                        <div class="d-flex gap-2 pt-3 border-top">
+                            <button id="save-product" class="btn btn-primary px-4">Save Product</button>
+                            <button id="delete-product" class="btn btn-outline-danger ms-auto">Delete Product</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ORDERS TAB -->
+    <div id="tab-orders" class="tab-content d-none">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h2 class="h5 mb-0">Recent Orders</h2>
+            </div>
+            <div class="card-body">
+                <div id="orders-list"></div>
+                <div id="order-detail" class="mt-4"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.tab-button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.add('d-none'));
+      document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const target = document.getElementById('tab-' + btn.dataset.tab);
+      if (target) target.classList.remove('d-none');
+    });
+  });
+});
+</script>
+{% endblock %}
+
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+    .list-group-item.active {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/admin_crud.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/admin_orders.js') }}" defer></script>
+{% endblock %}

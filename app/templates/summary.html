@@ -1,0 +1,196 @@
+{% extends "layout.html" %}
+
+{% block title %}Checkout - Summary{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="progress-bar-container mb-4">
+                <div class="progress-step completed">
+                    <div class="progress-step-number">1</div>
+                    <div class="progress-step-label">My Cart</div>
+                </div>
+                <div class="progress-step completed">
+                    <div class="progress-step-number">2</div>
+                    <div class="progress-step-label">Shipping Address</div>
+                </div>
+                <div class="progress-step completed">
+                    <div class="progress-step-number">3</div>
+                    <div class="progress-step-label">Shipping Methods</div>
+                </div>
+                <div class="progress-step completed">
+                    <div class="progress-step-number">4</div>
+                    <div class="progress-step-label">Payment Methods</div>
+                </div>
+                <div class="progress-step active">
+                    <div class="progress-step-number">5</div>
+                    <div class="progress-step-label">Summary</div>
+                </div>
+            </div>
+            <h1 class="mb-4">Order Summary</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Shipping Address Review -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold">Shipping Address</h5>
+                    <a href="{{ url_for('checkout_bp.shipping_address') }}" class="btn btn-sm btn-outline-secondary">Change</a>
+                </div>
+                <div class="card-body">
+                    {% if shipping_address %}
+                        <p class="mb-1 fw-bold">{{ shipping_address.first_name }} {{ shipping_address.last_name }}</p>
+                        <p class="mb-1">{{ shipping_address.address_line_1 }}</p>
+                        {% if shipping_address.address_line_2 %}<p class="mb-1">{{ shipping_address.address_line_2 }}</p>{% endif %}
+                        <p class="mb-1">{{ shipping_address.postal_code }} {{ shipping_address.city }}, {{ shipping_address.state }}</p>
+                        <p class="mb-0">{{ shipping_address.country_iso_code }}</p>
+                    {% else %}
+                        <p class="text-danger mb-0">No shipping address selected.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Shipping Method Review -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold">Shipping Method</h5>
+                    <a href="{{ url_for('checkout_bp.shipping_methods') }}" class="btn btn-sm btn-outline-secondary">Change</a>
+                </div>
+                <div class="card-body">
+                    <p class="mb-0 fw-bold text-capitalize">{{ selected_shipping }} Shipping</p>
+                </div>
+            </div>
+
+            <!-- Payment Method Review -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold">Payment Method</h5>
+                    <a href="{{ url_for('checkout_bp.payment_methods') }}" class="btn btn-sm btn-outline-secondary">Change</a>
+                </div>
+                <div class="card-body d-flex align-items-center">
+                    <span class="fw-bold text-capitalize me-3">{{ selected_payment }}</span>
+                    {% if selected_payment == 'card' %}
+                        <i class="bi bi-credit-card fs-4 text-primary"></i>
+                    {% elif selected_payment == 'paypal' %}
+                        <i class="bi bi-paypal fs-4 text-primary"></i>
+                    {% elif selected_payment == 'googlepay' %}
+                        <i class="bi bi-google fs-4 text-dark"></i>
+                    {% elif selected_payment == 'bank_transfer' %}
+                        <i class="bi bi-bank fs-4 text-secondary"></i>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Order Comment -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold">Order Comment <span class="text-muted small fw-normal">(Optional)</span></h5>
+                </div>
+                <div class="card-body">
+                    <textarea name="comment" form="place-order-form" class="form-control" rows="3" placeholder="Add any special instructions for your order..."></textarea>
+                </div>
+            </div>
+
+            <!-- Items Review -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold">Items</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Price</th>
+                                    <th>Qty</th>
+                                    <th class="text-end">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in display_items %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            {% if item.variant.images %}
+                                                <img src="{{ item.variant.images[0].url }}" alt="{{ item.variant.product.name }}" class="rounded me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                                            {% elif item.variant.product.images %}
+                                                <img src="{{ item.variant.product.images[0].url }}" alt="{{ item.variant.product.name }}" class="rounded me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                                            {% endif %}
+                                            <div>
+                                                <div class="fw-bold">{{ item.variant.product.name }}</div>
+                                                <div class="small text-muted">{{ item.variant.sku }}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>€{{ "%.2f"|format((item.variant.product.base_price_cents + item.variant.price_modifier_cents) / 100) }}</td>
+                                    <td>{{ item.quantity }}</td>
+                                    <td class="text-end fw-bold">€{{ "%.2f"|format(((item.variant.product.base_price_cents + item.variant.price_modifier_cents) * item.quantity) / 100) }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 summary-card sticky-top" style="top: 2rem; z-index: 10;">
+                <div class="card-body">
+                    <h2 class="h4 mb-4">Summary</h2>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Subtotal</span>
+                        <span id="summary-subtotal" class="fw-bold">€{{ "%.2f"|format(cart_summary.subtotal_cents / 100) }}</span>
+                    </div>
+                    <div id="summary-discount-row" class="d-flex justify-content-between mb-2 text-danger" {% if cart_summary.discount_cents == 0 %}style="display: none !important;"{% endif %}>
+                        <span class="">Discount</span>
+                        <span id="summary-discount" class="fw-bold">-€{{ "%.2f"|format(cart_summary.discount_cents / 100) }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Shipping</span>
+                        <span id="summary-shipping" class="fw-bold">€{{ "%.2f"|format(cart_summary.shipping_cost_cents / 100) }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2 border-top pt-2 mt-2">
+                        <span class="text-muted">Grand Total Excl. Tax</span>
+                        <span id="summary-grand-total-excl-tax" class="fw-bold">€{{ "%.2f"|format((cart_summary.subtotal_after_discount_cents + cart_summary.shipping_cost_cents) / 100) }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-muted">VAT</span>
+                        <span id="summary-vat" class="fw-bold">€{{ "%.2f"|format(cart_summary.vat_cents / 100) }}</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-4">
+                        <span class="h5 mb-0 fw-bold">Total Due</span>
+                        <span id="summary-total" class="h5 mb-0 fw-bold text-primary">€{{ "%.2f"|format(cart_summary.total_cents / 100) }}</span>
+                    </div>
+
+                    <form id="place-order-form" method="POST">
+                        <div class="form-check mb-3 small">
+                            <input class="form-check-input" type="checkbox" id="terms" required>
+                            <label class="form-check-label" for="terms">
+                                I have read and I accept the <a href="#" class="text-decoration-none">Terms and Conditions</a>
+                            </label>
+                        </div>
+                        <div class="form-check mb-4 small">
+                            <input class="form-check-input" type="checkbox" id="privacy" required>
+                            <label class="form-check-label" for="privacy">
+                                I have read and I accept the <a href="#" class="text-decoration-none">Basic data protection information</a>
+                            </label>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold py-3 shadow">PLACE ORDER</button>
+                    </form>
+
+                    <div class="mt-4 p-3 bg-light rounded d-flex align-items-center">
+                        <i class="bi bi-award fs-3 text-warning me-3"></i>
+                        <span class="small">With this purchase, you will obtain <span class="fw-bold text-dark">€{{ "%.2f"|format(cart_summary.total_cents / 5000) }}</span> Loyalty balance to redeem on your next order.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

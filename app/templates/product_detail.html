@@ -1,0 +1,99 @@
+{% extends "layout.html" %}
+{% block title %}Product - {{ sku }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row g-5">
+        <!-- Gallery Column -->
+        <div class="col-lg-7">
+            <div class="d-flex">
+                <!-- Vertical Thumbnails -->
+                <div id="thumb-rail" class="thumb-rail me-3 d-flex flex-column" style="width: 80px; gap: 10px;">
+                    <!-- Thumbs injected by product.js -->
+                </div>
+
+                <!-- Main Image -->
+                <div class="main-image-wrap flex-grow-1 position-relative bg-light rounded overflow-hidden">
+                    <img id="main-image" src="https://via.placeholder.com/800" alt="Product image" class="img-fluid w-100 h-100 object-fit-cover" />
+                    <button id="zoom-btn" class="btn btn-light position-absolute bottom-0 end-0 m-3 shadow-sm" aria-label="Zoom image" title="Zoom">
+                        <i class="bi bi-zoom-in"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Column -->
+        <div class="col-lg-5">
+            <nav aria-label="breadcrumb" class="mb-3">
+                <ol class="breadcrumb small">
+                    <li class="breadcrumb-item"><a href="{{ url_for('home') }}" class="text-decoration-none">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('shop_page') }}" class="text-decoration-none">Shop</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Product</li>
+                </ol>
+            </nav>
+
+            <h1 id="product-name" class="display-5 fw-bold mb-2">Loading...</h1>
+            <p id="product-price" class="h3 text-primary fw-bold mb-4">$0.00</p>
+
+            <div id="product-description" class="text-muted mb-5 lead"></div>
+
+            <hr class="my-4">
+
+            <div class="selectors">
+                <!-- Color Swatches -->
+                <div class="mb-4">
+                    <label class="form-label fw-bold small text-uppercase text-muted mb-3">Color</label>
+                    <div id="swatch-grid" class="d-flex flex-wrap gap-2" role="list">
+                        <!-- Swatches injected by product.js -->
+                    </div>
+                </div>
+
+                <!-- Size Buttons -->
+                <div class="mb-4">
+                    <label class="form-label fw-bold small text-uppercase text-muted mb-3">Size</label>
+                    <div id="size-buttons" class="d-flex flex-wrap gap-2" role="radiogroup">
+                        <!-- Size buttons injected by product.js -->
+                    </div>
+                </div>
+
+                <!-- Quantity and Add to Cart -->
+                <div class="row g-3 align-items-end mt-4">
+                    <div class="col-md-4">
+                        <label for="qty-input" class="form-label fw-bold small text-uppercase text-muted mb-2">Quantity</label>
+                        <input id="qty-input" type="number" min="1" value="1" class="form-control form-control-lg text-center">
+                    </div>
+                    <div class="col-md-8">
+                        <button id="add-to-cart" class="btn btn-primary btn-lg w-100 fw-bold py-3 shadow">
+                            <i class="bi bi-cart-plus me-2"></i>ADD TO CART
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="variant-message" class="mt-3 small fw-bold text-danger"></div>
+
+            <div class="mt-5 border-top pt-4">
+                <div class="d-flex align-items-center mb-3">
+                    <i class="bi bi-truck fs-4 me-3 text-muted"></i>
+                    <div>
+                        <div class="fw-bold small">Free Shipping</div>
+                        <div class="text-muted extra-small">On orders over €150</div>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-arrow-counterclockwise fs-4 me-3 text-muted"></i>
+                    <div>
+                        <div class="fw-bold small">Easy Returns</div>
+                        <div class="text-muted extra-small">30-day return policy</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>window.PRODUCT_SKU = "{{ sku }}";</script>
+<script src="{{ url_for('static', filename='js/product.js') }}" defer></script>
+{% endblock %}

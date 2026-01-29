@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+{% block title %}Admin Orders{% endblock %}
+{% block content %}
+
+<div class="container py-4">
+    <h1 class="mb-4">Admin — Orders</h1>
+
+    <!-- Filter/search controls -->
+    <div class="row g-3 mb-4 align-items-center">
+        <div class="col-auto">
+            <label for="filter-status" class="form-label mb-0 fw-bold">Status:</label>
+        </div>
+        <div class="col-auto">
+            <select id="filter-status" class="form-select form-select-sm">
+                <option value="">All</option>
+                <option value="PENDING">PENDING</option>
+                <option value="PAID">PAID</option>
+                <option value="READY_FOR_SHIPPING">READY_FOR_SHIPPING</option>
+                <option value="SHIPPED">SHIPPED</option>
+                <option value="DELIVERED">DELIVERED</option>
+                <option value="CANCELLED">CANCELLED</option>
+                <option value="RETURNED">RETURNED</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <input id="search-order" type="text" placeholder="Search by Order ID..." class="form-control form-control-sm"/>
+        </div>
+        <div class="col-auto">
+            <button id="reload-orders" class="btn btn-secondary btn-sm">Reload</button>
+        </div>
+    </div>
+
+    <!-- Orders list rendered by JS -->
+    <div id="orders-list" class="bg-white rounded shadow-sm p-3">
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Loading orders…</p>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/admin_orders.js') }}" defer></script>
+{% endblock %}

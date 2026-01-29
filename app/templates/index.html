@@ -1,0 +1,110 @@
+{% extends "layout.html" %}
+
+{% block title %}Welcome to E-Commerce Pro{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="bg-primary text-white py-5 mb-5 shadow">
+    <div class="container py-5">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-3 fw-bold mb-4">Quality Products, Delivered to You</h1>
+                <p class="lead mb-5">Explore our curated collection of premium goods. From fashion to electronics, we have everything you need with fast shipping and secure payments.</p>
+                <div class="d-flex gap-3">
+                    <a href="{{ url_for('shop_page') }}" class="btn btn-light btn-lg px-4 fw-bold text-primary shadow-sm">Shop Now</a>
+                    <a href="#featured-products" class="btn btn-outline-light btn-lg px-4 fw-bold">Learn More</a>
+                </div>
+            </div>
+            <div class="col-lg-6 d-none d-lg-block">
+                <img src="https://via.placeholder.com/600x400?text=Premium+Collection" alt="Hero Image" class="img-fluid rounded shadow-lg">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-4">
+    <!-- Featured Section -->
+    <div class="row mb-5" id="featured-products">
+        <div class="col-12 text-center mb-5">
+            <h2 class="fw-bold h1">Featured Products</h2>
+            <div class="bg-primary mx-auto" style="width: 80px; height: 4px; border-radius: 2px;"></div>
+        </div>
+
+        <div id="product-grid" class="row g-4">
+            <div class="col-12 text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading products...</span>
+                </div>
+                <p class="mt-2 text-muted">Discovering our best products for you...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="row g-4 py-5 mb-5 text-center border-top">
+        <div class="col-md-4">
+            <div class="p-4 rounded-3 hover-shadow transition">
+                <div class="bg-primary-subtle d-inline-flex p-3 rounded-circle mb-4 text-primary">
+                    <i class="bi bi-truck fs-2"></i>
+                </div>
+                <h3 class="h5 fw-bold">Free Shipping</h3>
+                <p class="text-muted small">On all orders over €150. Fast delivery across Europe and North America.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="p-4 rounded-3 hover-shadow transition">
+                <div class="bg-primary-subtle d-inline-flex p-3 rounded-circle mb-4 text-primary">
+                    <i class="bi bi-shield-check fs-2"></i>
+                </div>
+                <h3 class="h5 fw-bold">Secure Payment</h3>
+                <p class="text-muted small">We use 256-bit SSL encryption to ensure your credit card information is 100% safe.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="p-4 rounded-3 hover-shadow transition">
+                <div class="bg-primary-subtle d-inline-flex p-3 rounded-circle mb-4 text-primary">
+                    <i class="bi bi-arrow-repeat fs-2"></i>
+                </div>
+                <h3 class="h5 fw-bold">Easy Returns</h3>
+                <p class="text-muted small">Not satisfied? Return any product within 30 days for a full refund, no questions asked.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Newsletter -->
+<div class="bg-dark text-white py-5 mt-5">
+    <div class="container py-4 text-center">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <h2 class="fw-bold mb-3">Join Our Newsletter</h2>
+                <p class="text-muted mb-4">Subscribe to get special offers, free giveaways, and once-in-a-lifetime deals.</p>
+                <div class="input-group mb-3 px-md-5">
+                    <input type="email" class="form-control" placeholder="your@email.com" aria-label="Email">
+                    <button class="btn btn-primary px-4" type="button">Subscribe</button>
+                </div>
+                <p class="small text-muted mb-0">We respect your privacy. Unsubscribe at any time.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/index.js') }}" defer></script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hover-shadow:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+    .transition {
+        transition: all 0.3s ease-in-out;
+    }
+    .bg-primary-subtle {
+        background-color: rgba(13, 110, 253, 0.1);
+    }
+</style>
+{% endblock %}

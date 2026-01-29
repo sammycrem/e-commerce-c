@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Cart</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/my_cart.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="cart-header">
+            <div class="progress-bar">
+                <div class="step active">
+                    <span>1</span>
+                    <p>My Cart</p>
+                </div>
+                <div class="step">
+                    <span>2</span>
+                    <p>Shipping Address</p>
+                </div>
+                <div class="step">
+                    <span>3</span>
+                    <p>Shipping Methods</p>
+                </div>
+                <div class="step">
+                    <span>4</span>
+                    <p>Payment Methods</p>
+                </div>
+                <div class="step">
+                    <span>5</span>
+                    <p>Summary</p>
+                </div>
+            </div>
+            <h1>My Cart</h1>
+        </div>
+        <div class="cart-body">
+            <div class="cart-items">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Product Name</th>
+                            <th>Price/Unit</th>
+                            <th>Quantity</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="product-info">
+                                    <img src="{{ url_for('static', filename='assets/img/product-1.jpg') }}" alt="Water-Based Screen Printing Ink - Sumiprint - Opaque White - 1kg tub">
+                                    <div>
+                                        <p>Water-Based Screen Printing Ink - Sumiprint</p>
+                                        <span>- Opaque White - 1kg tub</span>
+                                        <p>SKU: 004624</p>
+                                        <p class="availability">Available</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>€10.65</td>
+                            <td>
+                                <div class="quantity-selector">
+                                    <button>-</button>
+                                    <input type="text" value="1">
+                                    <button>+</button>
+                                </div>
+                            </td>
+                            <td>€10.65</td>
+                            <td>
+                                <button class="delete-btn">🗑️</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="product-info">
+                                    <img src="{{ url_for('static', filename='assets/img/product-2.jpg') }}" alt="Water-Based Screen Printing Ink - Sumiprint - Black - 1kg tub">
+                                    <div>
+                                        <p>Water-Based Screen Printing Ink - Sumiprint</p>
+                                        <span>- Black - 1kg tub</span>
+                                        <p>SKU: 004622</p>
+                                        <p class="availability">Available</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>€11.50</td>
+                            <td>
+                                <div class="quantity-selector">
+                                    <button>-</button>
+                                    <input type="text" value="1">
+                                    <button>+</button>
+                                </div>
+                            </td>
+                            <td>€11.50</td>
+                            <td>
+                                <button class="delete-btn">🗑️</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="product-info">
+                                    <img src="{{ url_for('static', filename='assets/img/product-3.jpg') }}" alt="Water-Based Screen Printing Ink - Sumiprint - Yellow - 1kg tub">
+                                    <div>
+                                        <p>Water-Based Screen Printing Ink - Sumiprint</p>
+                                        <span>- Yellow - 1kg tub</span>
+                                        <p>SKU: 004620</p>
+                                        <p class="availability">Available</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>€11.50</td>
+                            <td>
+                                <div class="quantity-selector">
+                                    <button>-</button>
+                                    <input type="text" value="1">
+                                    <button>+</button>
+                                </div>
+                            </td>
+                            <td>€11.50</td>
+                            <td>
+                                <button class="delete-btn">🗑️</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="cart-actions">
+                    <button class="continue-shopping">Continue Shopping</button>
+                    <button class="clear-cart">Clear Shopping Cart</button>
+                </div>
+            </div>
+            <div class="cart-summary">
+                <h2>Summary</h2>
+                <div class="summary-item">
+                    <span>Subtotal</span>
+                    <span>€150.35</span>
+                </div>
+                <div class="summary-item">
+                    <span>Grand Total Excl. Tax</span>
+                    <span>€150.35</span>
+                </div>
+                <div class="summary-item total">
+                    <span>Total Due</span>
+                    <span>€150.35</span>
+                </div>
+                <button class="checkout-btn">PROCEED TO CHECKOUT</button>
+                <div class="loyalty-info">
+                    <p>With this purchase, you will obtain <strong>€3.00</strong> Loyalty balance to redeem on your next order.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

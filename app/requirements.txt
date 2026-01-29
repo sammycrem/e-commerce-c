@@ -1,0 +1,13 @@
+Flask
+flask_cors
+openai
+google-generativeai==0.6.0
+beautifulsoup4
+Flask-Login==0.6.3
+flask_sqlalchemy==3.1.1 
+flask_session
+flask_mail
+python-dotenv
+cryptography
+werkzeug
+Pillow

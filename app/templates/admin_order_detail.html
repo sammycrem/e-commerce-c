@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+{% block title %}Order {{ public_order_id }}{% endblock %}
+{% block content %}
+
+<div class="container py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('admin_page') }}">Admin</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('admin_orders') }}">Orders</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ public_order_id }}</li>
+        </ol>
+    </nav>
+
+    <h1 class="mb-4">Order Detail: {{ public_order_id }}</h1>
+
+    <!-- Order detail is populated dynamically -->
+    <div id="order-detail" class="bg-white rounded shadow-sm p-4" data-public-order-id="{{ public_order_id }}">
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Loading order details…</p>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a href="{{ url_for('admin_orders') }}" class="btn btn-outline-secondary">&larr; Back to Orders</a>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/admin_orders.js') }}" defer></script>
+{% endblock %}

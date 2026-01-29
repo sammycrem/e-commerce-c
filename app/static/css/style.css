@@ -62,31 +62,41 @@ a:hover {
 }
 
 .card {
-    border: none;
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-    border-radius: 0.75rem;
-    transition: all 0.3s ease;
+    border: 1px solid rgba(0,0,0,.05);
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.07), 0 4px 6px -2px rgba(0,0,0,0.05);
+    border-radius: 1rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     background-color: #fff;
 }
 
 .card:hover {
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
 }
 
 .btn {
-    border-radius: 0.5rem;
+    border-radius: 0.75rem;
     font-weight: 600;
-    padding: 0.6rem 1.25rem;
-    transition: all 0.2s;
+    padding: 0.75rem 1.5rem;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    letter-spacing: 0.025em;
 }
 
 .btn-primary {
-    box-shadow: 0 4px 10px rgba(13, 110, 253, 0.2);
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 6px -1px rgba(13, 110, 253, 0.3), 0 2px 4px -1px rgba(13, 110, 253, 0.2);
 }
 
 .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(13, 110, 253, 0.25);
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 10px 15px -3px rgba(13, 110, 253, 0.4), 0 4px 6px -2px rgba(13, 110, 253, 0.2);
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+}
+
+.btn-primary:active {
+    transform: translateY(0) scale(0.98);
 }
 
 .form-control, .form-select, .form-input {
@@ -386,41 +396,43 @@ a:hover {
 }
 
 .progress-step-number {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
     background-color: #fff;
-    border: 2px solid #e9ecef;
-    color: #adb5bd;
+    border: 2px solid #e2e8f0;
+    color: #94a3b8;
     font-weight: 700;
     display: flex;
     justify-content: center;
     align-items: center;
     margin-bottom: 0.75rem;
-    transition: all 0.3s ease;
-    font-size: 1.1rem;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 1.25rem;
 }
 
 .progress-step.active .progress-step-number {
     background-color: var(--primary-color);
     border-color: var(--primary-color);
     color: #fff;
-    box-shadow: 0 0 0 6px rgba(13, 110, 253, 0.15);
+    transform: scale(1.1);
+    box-shadow: 0 10px 15px -3px rgba(13, 110, 253, 0.4);
 }
 
 .progress-step.completed .progress-step-number {
-    background-color: var(--success-color);
+    background-color: #ecfdf5;
     border-color: var(--success-color);
-    color: #fff;
+    color: var(--success-color);
 }
 
 .progress-step-label {
-    font-size: 0.8rem;
-    font-weight: 700;
+    font-size: 0.75rem;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 1px;
-    color: #adb5bd;
+    letter-spacing: 0.05em;
+    color: #64748b;
     transition: all 0.3s ease;
+    text-align: center;
 }
 
 .progress-step.active .progress-step-label {
@@ -434,13 +446,13 @@ a:hover {
 .progress-step:not(:last-child)::after {
     content: '';
     position: absolute;
-    top: 20px;
+    top: 22px;
     left: 50%;
     width: 100%;
-    height: 4px;
-    background-color: #e9ecef;
+    height: 3px;
+    background-color: #e2e8f0;
     z-index: -1;
-    transition: background-color 0.3s ease;
+    transition: all 0.4s ease;
 }
 
 .progress-step.completed::after {

@@ -795,8 +795,13 @@ def calculate_totals_internal(items, shipping_country_iso=None, promo_code=None,
     if promo_code:
         promo = Promotion.query.filter_by(code=promo_code, is_active=True).first()
         from datetime import datetime, timezone
-        if promo and promo.valid_to and promo.valid_to < datetime.utcnow():
-            promo = None  # expired
+        if promo and promo.valid_to:
+            now = datetime.now(timezone.utc)
+            valid_to = promo.valid_to
+            if valid_to.tzinfo is None:
+                valid_to = valid_to.replace(tzinfo=timezone.utc)
+            if valid_to < now:
+                promo = None  # expired
 
     if promo:
         if promo.discount_type == 'PERCENT':
@@ -902,8 +907,13 @@ def compute_vat_for_cart(cart_items: list, country_iso: str):
         unit_cents = int(it.get('unit_price_cents', 0))
         category = it.get('product_snapshot', {}).get('category') if it.get('product_snapshot') else None
         vat_rate = get_vat_rate_for_product(country_iso, category)
-        vat_per_unit_decimal = cents_to_decimal(unit_cents) * Decimal(vat_rate)
+
+        # Correct VAT calculation: Convert cent values to decimal Euros before applying ratios
+        unit_price_decimal = cents_to_decimal(unit_cents)
+        vat_per_unit_decimal = unit_price_decimal * Decimal(vat_rate)
+        # Then convert back to cents using decimal_to_cents
         vat_per_unit_cents = decimal_to_cents(vat_per_unit_decimal)
+
         line_vat = vat_per_unit_cents * qty
         item_vats.append({'sku': it.get('sku') or it.get('variant_sku'), 'unit_vat_cents': vat_per_unit_cents, 'line_vat_cents': line_vat})
         total_vat += line_vat
